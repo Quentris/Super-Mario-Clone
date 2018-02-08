@@ -17,7 +17,7 @@ let marioLives = 3;
 
 function preload() {
     imgMarioStand = loadImage("../img/mario_stand.png");
-    imgMarioWalk = loadImage("../img/mario_walk.png")
+    imgMarioWalk = loadImage("../img/mario_walk.png");
     imgMarioJump = loadImage("../img/mario_jump.png");
     imgGroundCrack = loadImage("../img/ground.png");
 }
