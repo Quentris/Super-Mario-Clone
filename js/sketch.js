@@ -55,6 +55,9 @@ function draw() {
 
 }
 
+/**
+ * controls the players movement
+ */
 function controlPlayer() {
 
     if (player.velocity.y < 15) {
@@ -88,6 +91,9 @@ function controlPlayer() {
     }
 }
 
+/**
+ * callback function if player collides an obstacle
+ */
 function collideObstacle() {
     if (player.touching.bottom) {
         player.velocity.y = 0;
@@ -122,7 +128,7 @@ function initWorld() {
 
     obstacles = new Group();
 
-
+    ///TODO - Levelloader bauen mit json
     //Ground
     imgGroundCrack.resize(32, 32);
     for (i = 0; i < 32; i++) {
@@ -164,6 +170,9 @@ function nH(oldVar) {
     return globalHeight - oldVar;
 }
 
+/**
+ * resets the player to start position (later maybe reset to save position).
+ */
 function resetPlayer() {
     player.position.x = 200;
     player.position.y = nH(64);
@@ -171,6 +180,9 @@ function resetPlayer() {
     camera.position.y = 320;
 }
 
+/**
+ * manages player dead. Reset or Game Over.
+ */
 function playerIsDead() {
     if (marioLives <= 1) {
         player.velocity.x = 0;
