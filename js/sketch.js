@@ -1,9 +1,6 @@
 const globalWidth = 640;
 const globalHeight = 640;
 const moveSpeed = 3;
-const gravity = 0.8;
-const jumpHeight = 20;
-let jumping = false;
 // let obstacle = [];
 let obstacles;
 let hoehe = 0;

@@ -1,4 +1,7 @@
 let player;
+const gravity = 0.8;
+const jumpHeight = 20;
+let jumping = false;
 
 class Controller {
 
@@ -14,11 +17,8 @@ class Controller {
     controlPlayer() {
 
         if (this.player.velocity.y < 15) {
-            this.player.velocity.y += 0.8;
+            this.player.velocity.y += 0.8;            
         }
-        //TODO - Gravity auf höhe mappen
-
-
 
         // this.player.velocity.x = 0;
         this.player.velocity.x /= 2;
