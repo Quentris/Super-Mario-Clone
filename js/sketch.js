@@ -1,7 +1,7 @@
 const globalWidth = 640;
 const globalHeight = 640;
 const moveSpeed = 3;
-// let obstacle = [];
+let obstacle = [];
 let obstacles;
 let hoehe = 0;
 let ausgabe;
@@ -9,6 +9,10 @@ let imgGroundCrack;
 let marioLives = 3;
 let controller;
 let imgMarioStand, imgMarioJump, imgMarioWalk;
+
+const gravity = 2;
+const jumpHeight = 20;
+let jumping = false;
 
 function preload() {
     imgMarioStand = loadImage("../img/mario_stand.png");
@@ -28,21 +32,21 @@ function setup() {
 function draw() {
     background(102, 178, 255);
 
-    hoehe = map(this.controller.player.position.y, globalHeight, 0, 0, globalHeight);
+    hoehe = map(player.position.y, globalHeight, 0, 0, globalHeight);
 
     //Move Camera
-    if (this.controller.player.position.x > camera.position.x + 25) {
+    if (player.position.x > camera.position.x + 25) {
         camera.position.x += 5;
     }
 
     //Check player collision with object
-    this.controller.player.collide(this.obstacles, this.controller.collideObstacle());
+    player.collide(obstacles, collideObstacle());
 
     //Check death through hole
-    if (nH(this.controller.player.position.y) < 0) {
-        this.controller.playerIsDead();
+    if (nH(player.position.y) < 0) {
+        playerIsDead();
     } else {
-        this.controller.controlPlayer();
+        controlPlayer();
     }
     drawSprites();
     showInfos();
@@ -50,11 +54,58 @@ function draw() {
 }
 
 /**
+ * controls the players movement
+ */
+function controlPlayer() {
+
+    if (player.velocity.y < 15) {
+        player.velocity.y += 0.8;
+    }
+
+    // player.velocity.x = 0;
+    player.velocity.x /= 2;
+
+    if (keyWentDown(UP_ARROW) && !jumping) {
+        player.changeImage("jump");
+        player.velocity.y = -80;
+        jumping = true;
+    }
+
+    if (keyIsDown(LEFT_ARROW)) {
+        player.mirrorX(-1);
+        if (!(player.position.x - player.width / 2 < camera.position.x - 320)) {
+            player.velocity.x -= moveSpeed;
+        }
+        if (!jumping) player.changeAnimation("move");
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+        player.mirrorX(1);
+        player.velocity.x += moveSpeed;
+        if (!jumping) player.changeAnimation("move");
+        // camera.position.x += 4;
+    }
+
+    if (!keyIsDown(LEFT_ARROW) && !keyIsDown(RIGHT_ARROW) && !jumping) {
+        player.changeImage("stand");
+    }
+}
+
+/**
+ * callback function if player collides an obstacle
+ */
+function collideObstacle() {
+    if (player.touching.bottom) {
+        player.velocity.y = 0;
+        if (jumping) jumping = false;
+    }
+}
+
+/**
  * Debugging
  */
-function showInfos(){
-    ausgabe.html(this.controller.player.velocity.y);
-    
+function showInfos() {
+    ausgabe.html(player.velocity.y);
+
     ausgabe.show();
 }
 
@@ -66,10 +117,17 @@ function initWorld() {
     camera.position.x = globalWidth / 2;
     camera.position.y = 320;
 
-    this.controller = new Controller();
+    player = createSpriteNorm(200, 64, 25, 26);
+    imgMarioStand.resize(player.width, player.height);
+    imgMarioWalk.resize(player.width, player.height);
+    imgMarioJump.resize(player.width, player.height);
+    player.addImage("stand", imgMarioStand);
+    player.addAnimation("move", imgMarioStand, imgMarioStand, imgMarioWalk, imgMarioWalk);
+    player.addImage("jump", imgMarioJump);
 
-    this.obstacles = new Group();
-    let obstacle = [];
+    // controller = new Controller();
+
+    obstacles = new Group();
 
     //Ground
     imgGroundCrack.resize(32, 32);
@@ -89,7 +147,7 @@ function initWorld() {
     obstacle[32] = createSpriteNorm(500, 64, 32, 64);
 
     obstacle.forEach(element => {
-        this.obstacles.add(element);
+        obstacles.add(element);
     });
 }
 
@@ -110,4 +168,42 @@ function createSpriteNorm(x, y, w, h) {
  */
 function nH(oldVar) {
     return globalHeight - oldVar;
+}
+
+
+
+
+/**
+ * resets the player to start position (later maybe reset to save position).
+ */
+function resetPlayer() {
+    player.position.x = 200;
+    player.position.y = nH(64);
+    camera.position.x = globalWidth / 2;
+    camera.position.y = 320;
+}
+
+/**
+ * manages player dead. Reset or Game Over.
+ */
+function playerIsDead() {
+    if (marioLives <= 1) {
+        player.velocity.x = 0;
+        player.velocity.y = 0;
+        textSize(40);
+        fill(255, 0, 0);
+        text("GAME OVER!!!", camera.position.x - 150, 100);
+    } else {
+
+        player.velocity.x = 0;
+        player.velocity.y = 0;
+        textSize(30);
+        fill(255, 69, 0);
+        text("1 Leben verloren!", camera.position.x - 150, 100);
+
+        if (keyWentDown(ENTER)) {
+            marioLives--;
+            resetPlayer();
+        }
+    }
 }
